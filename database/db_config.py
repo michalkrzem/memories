@@ -1,6 +1,5 @@
-USER = 'registrar'
-PASSWORD = 'registration'
+USER = 'memories'
+PASSWORD = 'memories'
 HOST = '127.0.0.1'
-DB = 'registration'
+DB = 'memories'
 PORT = '5432'
-

@@ -31,6 +31,11 @@ In the future, users can register and login.
 <a name="howTo"></a>
 ## How to Use
 
+
+```shell
+$ mkdir /home/memories/database
+```
+
 #### create docker with postgresql database
 ```shell
 $ docker run -d \
@@ -50,17 +55,16 @@ $ su - postgres
 $ psql
 ```
 
-#### switch to user and database "memories"
-```shell
-\c memories memories
-```
-
 #### execute the sql commands
 ```shell
 CREATE USER memories WITH password 'memories';
 ALTER DATABASE memories OWNER TO memories;
 ```
 
+#### switch to user and database "memories"
+```shell
+\c memories memories
+```
 
 ```shell
 CREATE TABLE public."role" (

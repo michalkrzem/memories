@@ -13,8 +13,6 @@ from passlib.context import CryptContext
 from schemas import schema
 
 load_dotenv()
-print(os.getenv("USERS"))
-
 
 USERS = json.loads(os.getenv("USERS"))
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -68,6 +66,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(payload)
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -75,6 +74,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     user = get_user(USERS, username=token_data.username)
+    print(user)
 
     if user is None:
         raise credentials_exception
@@ -88,4 +88,4 @@ async def get_current_active_user(current_user: schema.UserAuth = Depends(get_cu
 
 
 #  to generate new password hash
-#  get_password_hash('haslo')
+# print(get_password_hash('F@ther'))
