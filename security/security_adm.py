@@ -20,7 +20,8 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme_admin = OAuth2PasswordBearer(tokenUrl="/admin/login")
+oauth2_scheme_user = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 
 def verify_password(plain_password, hashed_password):
@@ -58,7 +59,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_admin(token: str = Depends(oauth2_scheme_admin)):
     credentials_exception = HTTPException(
         status_code=401,
         detail='Unauthorized',
@@ -73,6 +74,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = schema.TokenData(username=username)
     except JWTError:
         raise credentials_exception
+
     user = get_user(USERS, username=token_data.username)
     print(user)
 
@@ -81,11 +83,34 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-async def get_current_active_user(current_user: schema.UserAuth = Depends(get_current_user)):
+async def get_current_user(token: str = Depends(oauth2_scheme_user)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail='Unauthorized',
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        print(schema.TokenData(username=email))
+        return schema.TokenData(username=email)
+    except JWTError:
+        raise credentials_exception
+
+
+async def get_current_active_admin(current_user: schema.UserAuth = Depends(get_current_admin)):
+    print(current_user)
     if current_user.disabled:
         raise HTTPException(status_code=403, detail='Forbidden')
     return current_user
 
+
+async def get_current_active_user(current_user: schema.UserAuth = Depends(get_current_user)):
+    print(current_user)
+
+    return current_user
 
 #  to generate new password hash
 # print(get_password_hash('F@ther'))

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-# from users import users
+from users import users
 from schemas import schema
 from admin import admin
 from variables import responses
@@ -8,8 +8,8 @@ from variables import responses
 app = FastAPI()
 
 
-# app.include_router(users.router)
-app.include_router(admin.router)
+app.mount('/users', users.app_users)
+app.mount('/admin', admin.app_admin)
 
 
 @app.get(

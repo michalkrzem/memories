@@ -11,10 +11,10 @@
 <a name="general"></a>
 ## General
 
-A simple crud app in local environement for the administrator that allows you to manage users (without logging in) in the database. 
+One a simple crud app in local environement for the administrator that allows you to manage users in the database. 
 The administrator uses OAuth2 with Password (and hashing), Bearer with JWT tokens  authentication and authorisation.
 User data is saved in the postgres database in the docker.
-In the future, users can register and login. 
+Users also can login in to app via OAuth2. This is subapi for users. 
 
 
 <a name="tech"></a>
@@ -78,13 +78,13 @@ CREATE TABLE public."role" (
 ```shell
 CREATE TABLE public.users (
 	id serial NOT NULL,
-	"name" varchar(20) NOT NULL,
+	name varchar(20) NOT NULL,
 	surname varchar(30) NOT NULL,
 	email varchar(100) NOT NULL,
 	created_on timestamp NOT NULL,
 	role_id int4 NOT NULL,
+	"password" varchar(100) NOT NULL,
 	CONSTRAINT users_email_key UNIQUE (email),
-	CONSTRAINT users_email_key1 UNIQUE (email),
 	CONSTRAINT users_pkey PRIMARY KEY (id),
 	CONSTRAINT role_users FOREIGN KEY (role_id) REFERENCES public."role"(id_role)
 );
@@ -104,11 +104,14 @@ $ uvicorn main:app --port 8000 --reload
 127.0.0.1:8000/docs
 ```
 
+![Screenshot](Swagger_admin.png)
+![Screenshot](Swagger_users.png)
+
 <a name="todo"></a>
 # TODO
 
-- user atuthorization (HTTPBasicpython )
-- add the column "password_hash" to the "users" table
+- improve the structure of the login files
+- improve the structure of the schemas files
 - add the ability to add posts for users
 - better containerization - dockerfile
 - ...

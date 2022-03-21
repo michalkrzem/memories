@@ -37,8 +37,15 @@ class User(BaseModel):
 	name: str = Field(...)
 	surname: str = Field(...)
 	email: str = Field(...)
-	created_on: datetime.datetime = Field(...)
 	role_id: int = Field(...)
+
+	class Config:
+		orm_mode = True
+		allow_population_by_field_name = True
+
+
+class UserIn(User):
+	password: str = Field(...)
 
 	class Config:
 		orm_mode = True

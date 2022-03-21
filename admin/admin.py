@@ -1,14 +1,12 @@
-import datetime
 from datetime import timedelta
 from typing import List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import HTTPException, FastAPI
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from starlette import status
 
-from database.db_connection import SessionLocal
 from sqlalchemy.orm import Session
 from database import crud
 from schemas import schema
@@ -16,24 +14,16 @@ from variables import responses
 
 
 # Dependency
-from security import security
-from security.security import get_current_active_user, USERS, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from security import security_adm
+from security.security_adm import get_current_active_admin, USERS, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from database.db_connection import get_db
 
 
-def get_db():
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
+app_admin = FastAPI()
 
 
-router = APIRouter()
-
-
-@router.post(
-    "/token",
+@app_admin.post(
+    "/login",
     tags=["TOKEN"],
     description="Generate token",
     deprecated=False,
@@ -46,7 +36,10 @@ router = APIRouter()
     }
 )
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = security.authenticate_user(USERS, form_data.username, form_data.password)
+
+    """TODO: change security_Adm na security_users and create new security for admin"""
+
+    user = security_adm.authenticate_user(USERS, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -60,8 +53,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"user": user.username, "access_token": access_token, "token_type": "bearer"}
 
 
-@router.get(
-    "/admin/users",
+@app_admin.get(
+    "/users",
     tags=["admin"],
     description='Get informations about all users',
     response_model=List[schema.UserOut],
@@ -69,7 +62,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 )
 async def read_users(
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
     users = crud.get_all(db)
@@ -77,26 +70,26 @@ async def read_users(
     return users
 
 
-@router.get(
-    "/admin/user",
+@app_admin.get(
+    "/user",
     tags=["admin"],
     description='Get information about user with email',
-    response_model=schema.UserOut,
+    response_model=schema.UserEmailOut,
     responses=responses.errors
 )
 async def read_user(
         email: EmailStr,
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
-    user_via_email = crud.get_usrer_via_email(email, db)
+    user_via_email = crud.get_user_via_email(email, db)
 
     return user_via_email
 
 
-@router.get(
-    "/admin/roles",
+@app_admin.get(
+    "/roles",
     tags=["admin"],
     description='Get information about all roles',
     response_model=List[schema.Role],
@@ -104,7 +97,7 @@ async def read_user(
 )
 async def read_user(
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
     roles = crud.get_roles(db)
@@ -112,8 +105,8 @@ async def read_user(
     return roles
 
 
-@router.post(
-    "/admin/role",
+@app_admin.post(
+    "/role",
     tags=['admin'],
     description='Create new role',
     response_model=schema.Role,
@@ -122,7 +115,7 @@ async def read_user(
 async def create_role(
         role,
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
     new_role = role
@@ -131,8 +124,8 @@ async def create_role(
     return result
 
 
-@router.patch(
-    "/admin/user/privileges",
+@app_admin.patch(
+    "/user/privileges",
     tags=['admin'],
     description='Change user privileges',
     response_model=schema.UserEmailOut,
@@ -141,19 +134,19 @@ async def create_role(
 async def change_privileges(
         new_role: schema.NewPrivilegesIn,
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
-    crud.get_usrer_via_email(new_role.email, db)
+    crud.get_user_via_email(new_role.email, db)
     crud.change_privileges(new_role, db)
 
-    user_with_new_privileges = crud.get_usrer_via_email(new_role.email, db)
+    user_with_new_privileges = crud.get_user_via_email(new_role.email, db)
 
     return user_with_new_privileges
 
 
-@router.delete(
-    "/admin/user",
+@app_admin.delete(
+    "/user",
     tags=['admin'],
     description='Delete user',
     response_model=schema.Message,
@@ -162,26 +155,27 @@ async def change_privileges(
 def delete_user(
         email: EmailStr,
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
-    crud.get_usrer_via_email(email, db)
+    crud.get_user_via_email(email, db)
     crud.delete_user(email, db)
 
 
-@router.post(
-    '/admin/user',
+@app_admin.post(
+    '/user',
     tags=['admin'],
     description='Add new user to database',
     response_model=schema.UserOut,
     responses=responses.errors
 )
 def add_user(
-        new_user: schema.User,
+        new_user: schema.UserIn,
         db: Session = Depends(get_db),
-        current_user: schema.UserAuth = Depends(get_current_active_user)
+        current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
-    new_user.created_on = datetime.datetime.now()
+
+    new_user.password = security_adm.get_password_hash(new_user.password)
     user = crud.add_user(new_user, db)
 
     return user

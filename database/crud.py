@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import sqlalchemy.exc
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -11,13 +13,14 @@ def get_all(db: Session):
     return result
 
 
-def get_usrer_via_email(email: str, db: Session):
+def get_user_via_email(email: str, db: Session):
     try:
         result = db.query(
             models.User.id,
             models.User.name,
             models.User.surname,
             models.User.email,
+            models.User.password,
             models.User.created_on,
             models.Role.role_name
         ).join(
@@ -27,7 +30,7 @@ def get_usrer_via_email(email: str, db: Session):
             models.User.email == email
         ).one()
     except sqlalchemy.exc.NoResultFound:
-        raise HTTPException(status_code=404, detail=f'Not fount user {email}')
+        raise HTTPException(status_code=401, detail=f'Not found user {email}')
     return result
 
 
@@ -70,6 +73,7 @@ def add_user(new_user, db):
 
     user_data = new_user.dict()
     user = models.User(**user_data)
+    user.created_on = datetime.now()
 
     try:
         db.add(user)

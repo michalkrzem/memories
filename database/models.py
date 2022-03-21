@@ -9,6 +9,7 @@ class User(Base):
     name = Column(String)
     surname = Column(String)
     email = Column(String)
+    password = Column(String)
     created_on = Column(Date)
     role_id = Column(String)
 
