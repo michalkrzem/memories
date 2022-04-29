@@ -1,5 +1,6 @@
 import datetime
-from typing import Optional, List, Dict
+from typing import Optional
+
 from pydantic import BaseModel, Field, EmailStr
 
 
@@ -26,11 +27,11 @@ class NewRoleIn(BaseModel):
 
 class NewPrivilegesIn(BaseModel):
 	"""
-	TODO: ewerything is ok?
+	TODO: everything is ok?
 	"""
 
 	email: EmailStr
-	new_prewiliges: int
+	new_privileges: int
 
 
 class User(BaseModel):
@@ -66,7 +67,7 @@ class UserOut(User):
 		allow_population_by_field_name = True
 
 
-class UserEmailOut(BaseModel):
+class UserProfileOut(BaseModel):
 	id: int = Field(...)
 	name: str = Field(...)
 	surname: str = Field(...)
@@ -80,6 +81,12 @@ class UserAuth(BaseModel):
 	disabled: Optional[bool] = None
 
 
+class NewPasswordIn(BaseModel):
+	old_password: str
+	new_password: str
+	new_password_repeat: str
+
+
 class Token(BaseModel):
 	user: str
 	access_token: str
@@ -90,3 +97,32 @@ class TokenData(BaseModel):
 	username: Optional[str] = None
 
 
+class Tag(BaseModel):
+	tag: str
+
+	class Config:
+		orm_mode = True
+		allow_population_by_field_name = True
+
+
+class TagOut(Tag):
+	id: int
+
+
+class PostInOut(BaseModel):
+	tag_id: int
+	post: str
+	created_on: datetime.datetime
+
+	class Config:
+		orm_mode = True
+
+
+class PostIn(BaseModel):
+	post: str
+	tag: str
+
+
+class PostOut(PostInOut):
+	id: int
+	user_id:int

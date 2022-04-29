@@ -15,9 +15,9 @@ app.mount('/admin', admin.app_admin)
 @app.get(
     "/",
     tags=['Welcome'],
-    description='This is app with sdministration panel',
+    description='This is app for my family',
     response_model=schema.Message,
     responses=responses.errors
 )
 async def root():
-    return {"detail": "Hello Admin!"}
+    return {"detail": "Hello !"}

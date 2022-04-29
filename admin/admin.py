@@ -14,8 +14,8 @@ from variables import responses
 
 
 # Dependency
-from security import security_adm
-from security.security_adm import get_current_active_admin, USERS, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from security import security
+from security.security import get_current_active_admin, USERS, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from database.db_connection import get_db
 
 
@@ -37,9 +37,9 @@ app_admin = FastAPI()
 )
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
-    """TODO: change security_Adm na security_users and create new security for admin"""
+    """TODO: change security na security_users and create new security for admin"""
 
-    user = security_adm.authenticate_user(USERS, form_data.username, form_data.password)
+    user = security.authenticate_user(USERS, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,7 +56,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @app_admin.get(
     "/users",
     tags=["admin"],
-    description='Get informations about all users',
+    description='Get information about all users',
     response_model=List[schema.UserOut],
     responses=responses.errors
 )
@@ -74,7 +74,7 @@ async def read_users(
     "/user",
     tags=["admin"],
     description='Get information about user with email',
-    response_model=schema.UserEmailOut,
+    response_model=schema.UserProfileOut,
     responses=responses.errors
 )
 async def read_user(
@@ -95,7 +95,7 @@ async def read_user(
     response_model=List[schema.Role],
     responses=responses.errors
 )
-async def read_user(
+async def read_roles(
         db: Session = Depends(get_db),
         current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
@@ -128,7 +128,7 @@ async def create_role(
     "/user/privileges",
     tags=['admin'],
     description='Change user privileges',
-    response_model=schema.UserEmailOut,
+    response_model=schema.UserProfileOut,
     responses=responses.errors
 )
 async def change_privileges(
@@ -175,7 +175,7 @@ def add_user(
         current_user: schema.UserAuth = Depends(get_current_active_admin)
 ):
 
-    new_user.password = security_adm.get_password_hash(new_user.password)
+    new_user.password = security.get_password_hash(new_user.password)
     user = crud.add_user(new_user, db)
 
     return user

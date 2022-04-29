@@ -11,10 +11,10 @@
 <a name="general"></a>
 ## General
 
-One a simple crud app in local environement for the administrator that allows you to manage users in the database. 
+One a simple crud app in local environment for the administrator that allows you to manage users in the database. 
 The administrator uses OAuth2 with Password (and hashing), Bearer with JWT tokens  authentication and authorisation.
 User data is saved in the postgres database in the docker.
-Users also can login in to app via OAuth2. This is subapi for users. 
+Users also can login to app via OAuth2. This is subapi for users. 
 
 
 <a name="tech"></a>
@@ -105,7 +105,8 @@ $ uvicorn main:app --port 8000 --reload
 ```
 
 ![Screenshot](Swagger_admin.png)
-![Screenshot](Swagger_users.png)
+
+![Screenshot2](Swagger_users.png)
 
 <a name="todo"></a>
 # TODO

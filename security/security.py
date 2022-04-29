@@ -76,7 +76,6 @@ async def get_current_admin(token: str = Depends(oauth2_scheme_admin)):
         raise credentials_exception
 
     user = get_user(USERS, username=token_data.username)
-    print(user)
 
     if user is None:
         raise credentials_exception
