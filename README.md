@@ -132,9 +132,9 @@ $ uvicorn main:app --port 8000 --reload
 ```
 
 
-![Screenshot](memories/Swagger_admin.png)
+![Screenshot](https://github.com/michalkrzem/memories/Swagger_admin.png)
 
-![Screenshot2](memories/Swagger_users.png)
+![Screenshot2](https://github.com/michalkrzem/memories/Swagger_users.png)
 
 <a name="todo"></a>
 # TODO
