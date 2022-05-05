@@ -38,4 +38,3 @@ class Post(Base):
     created_on = Column(Date)
     tag_id = Column(Integer)
     user_id = Column(Integer)
-

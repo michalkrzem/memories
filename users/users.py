@@ -36,7 +36,7 @@ app_users = FastAPI()
 async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
 
     user = crud.get_user_via_email(form_data.username, db)
-    print(user)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -83,10 +83,10 @@ async def change_password(
 ):
     db_password_hash = crud.get_user_via_email(current_user.username, db).password
     correct_old_password = security.verify_password(passwords.old_password, db_password_hash)
-    correct_new_passwords = (passwords.new_password == passwords.new_password_repeat)
+    correct_new_password = (passwords.new_password == passwords.new_password_repeat)
     new_password_hash = security.get_password_hash(passwords.new_password)
 
-    if correct_new_passwords and correct_old_password:
+    if correct_new_password and correct_old_password:
         crud.change_password(new_password_hash, current_user.username, db)
 
     user_with_new_password = crud.get_user_via_email(current_user.username, db)

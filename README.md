@@ -90,6 +90,29 @@ CREATE TABLE public.users (
 );
 ```
 
+```shell
+CREATE TABLE public.tags (
+	id serial NOT NULL,
+	tag varchar(20) NOT NULL,
+	user_id int4 NOT NULL,
+	CONSTRAINT tag_unique UNIQUE (tag, user_id),
+	CONSTRAINT tags_pkey PRIMARY KEY (id)
+);
+```
+
+```shell
+CREATE TABLE public.posts (
+	id serial NOT NULL,
+	post varchar(500) NOT NULL,
+	created_on timestamp NOT NULL,
+	tag_id int4 NOT NULL,
+	user_id int4 NOT NULL,
+	CONSTRAINT posts_pkey PRIMARY KEY (id),
+	CONSTRAINT post_user_id FOREIGN KEY (user_id) REFERENCES public.users(id),
+	CONSTRAINT tag_posts FOREIGN KEY (tag_id) REFERENCES public.tags(id)
+);
+```
+
 #### run app
 ```shell
 $ uvicorn main:app --port 8000 --reload
@@ -101,19 +124,24 @@ $ uvicorn main:app --port 8000 --reload
 
 #### Documentation in swagger
 ```
-127.0.0.1:8000/docs
+127.0.0.1:8000/users/docs
 ```
 
-![Screenshot](Swagger_admin.png)
+```
+127.0.0.1:8000/admin/docs
+```
 
-![Screenshot2](Swagger_users.png)
+
+![Screenshot](memories/Swagger_admin.png)
+
+![Screenshot2](memories/Swagger_users.png)
 
 <a name="todo"></a>
 # TODO
 
-- improve the structure of the login files
-- improve the structure of the schemas files
-- add the ability to add posts for users
++ improve the structure of the login files
++ improve the structure of the schemas files
++ add the ability to add posts for users
 - better containerization - dockerfile
 - ...
 - ...
