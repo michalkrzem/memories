@@ -1,13 +1,18 @@
 from datetime import timedelta
 from typing import List
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import HTTPException
-from fastapi import FastAPI, Depends
+from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
 from sqlalchemy.orm import Session
-from database import crud
+from starlette.templating import Jinja2Templates
+
+from schemas.schema import UserTokenAuth
+from users import crud
 from schemas import schema
 from security.security import get_current_active_user, USERS, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 
@@ -18,6 +23,37 @@ from database.db_connection import get_db
 
 
 app_users = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+origins = [
+    "http://localhost",
+    "http://localhost:8000"
+    "http://localhost:8080",
+]
+
+app_users.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app_users.get(
+    "/",
+    tags=['USERS'],
+    description='This is app for my family',
+    response_model=schema.Message,
+    response_class=HTMLResponse
+)
+async def login(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: schema.UserAuth = Depends(get_current_active_user)
+):
+
+    return templates.TemplateResponse("users.html", {"request": request})
 
 
 @app_users.post(
@@ -33,7 +69,10 @@ app_users = FastAPI()
         }
     }
 )
-async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(
+        db: Session = Depends(get_db),
+        form_data: OAuth2PasswordRequestForm = Depends()
+):
 
     user = crud.get_user_via_email(form_data.username, db)
 
@@ -64,7 +103,6 @@ async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth
 async def read_user_me(
         db: Session = Depends(get_db),
         current_user: schema.UserAuth = Depends(get_current_active_user)
-
 ):
     user_via_email = crud.get_user_via_email(current_user.username, db)
 
@@ -136,7 +174,7 @@ def create_post(
 ):
 
     post = crud.create_new_post(new_post, db, current_user.username)
-    print(post)
+
     return post
 
 

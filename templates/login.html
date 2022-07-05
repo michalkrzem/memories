@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <title>Memories</title>
+</head>
+
+<body>
+    <div class="main">
+        <div class="container">
+            <div class="middle">
+                <div id="login">
+                    <p ><span class="fa fa-user"></span><input id="username" type="text"  Placeholder="Username" required></p> <!-- JS because of IE support; better: placeholder="Username" -->
+                    <p><span class="fa fa-lock"></span><input id="password" type="password"  Placeholder="Password" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                        <div id="signin">
+                            <button class="button" onclick="signIn()">Login</button>
+                        </div>
+                </div>
+                <div class="logo">
+                    MEMORIES
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+    const username = document.getElementById('username')
+    const password = document.getElementById('password')
+
+    let formData = new FormData();
+    
+    function signIn() {
+
+        formData.append("username",  username.value);
+        formData.append("password", password.value);
+
+        fetch('http://127.0.0.1:8000/users/login', {
+            method: 'POST',
+            mode : 'same-origin',
+            credentials: 'same-origin',
+            body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+            })
+    }
+
+</script>
+
+</html>

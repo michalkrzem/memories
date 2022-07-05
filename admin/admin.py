@@ -8,7 +8,7 @@ from pydantic import EmailStr
 from starlette import status
 
 from sqlalchemy.orm import Session
-from database import crud
+from admin import crud
 from schemas import schema
 from variables import responses
 

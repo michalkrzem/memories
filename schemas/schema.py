@@ -81,6 +81,11 @@ class UserAuth(BaseModel):
 	disabled: Optional[bool] = None
 
 
+class UserTokenAuth(BaseModel):
+	username: str
+	password: str
+
+
 class NewPasswordIn(BaseModel):
 	old_password: str
 	new_password: str

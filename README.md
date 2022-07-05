@@ -136,6 +136,8 @@ $ uvicorn main:app --port 8000 --reload
 
 ![Screenshot2](https://github.com/michalkrzem/memories/blob/main/Swagger_users.PNG)
 
+![Screenshot2](https://github.com/michalkrzem/memories/blob/main/users_login_panel.PNG)
+
 <a name="todo"></a>
 # TODO
 

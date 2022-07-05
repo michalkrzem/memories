@@ -83,6 +83,7 @@ async def get_current_admin(token: str = Depends(oauth2_scheme_admin)):
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme_user)):
+    print(token)
     credentials_exception = HTTPException(
         status_code=401,
         detail='Unauthorized',
@@ -100,14 +101,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme_user)):
 
 
 async def get_current_active_admin(current_user: schema.UserAuth = Depends(get_current_admin)):
-    print(current_user)
+
     if current_user.disabled:
         raise HTTPException(status_code=403, detail='Forbidden')
     return current_user
 
 
 async def get_current_active_user(current_user: schema.UserAuth = Depends(get_current_user)):
-    print(current_user)
 
     return current_user
 
